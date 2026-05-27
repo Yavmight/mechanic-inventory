@@ -1,0 +1,18 @@
+# Database file (auto-generated, no need to track)
+*.db
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment (if you use one)
+venv/
+env/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Flask session files
+flask_session/
