@@ -6,7 +6,14 @@
 </head>
 <body>
 <h2>Welcome, {{ username }}</h2>
-    <a href="/logout">Logout</a>
+
+{% if low_stock_count > 0 %}
+    <p style="color:red; font-weight:bold;">
+        ⚠ {{ low_stock_count }} part(s) are running low on stock!
+    </p>
+{% endif %}
+
+<a href="/logout">Logout</a>
 
     <h3>My Parts</h3>
     <a href="/add">+ Add New Part</a>

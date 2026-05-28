@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 import sqlite3
 from database import init_db, get_db
 from werkzeug.security import  generate_password_hash, check_password_hash
+from logic import get_low_stock_parts
 
 
 app = Flask(__name__)
@@ -65,6 +66,7 @@ def index():
     return redirect(url_for('login'))
 
 
+#inventory
 
 @app.route('/inventory')
 def inventory():
@@ -77,6 +79,8 @@ def inventory():
         (session['user_id'],)
     ).fetchall()
     db.close()
+
+    low_stock = get_low_stock_parts(parts)
 
     return render_template('inventory.html', parts=parts, username=session['username'])
 
