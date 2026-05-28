@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Item</title>
+</head>
+<body>
+<h2>Edit Part</h2>
+    <a href="/inventory">← Back to Inventory</a>
+
+    <form method="POST">
+        <label>Part Name</label><br>
+        <input type="text" name="name" value="{{ part['name'] }}" required><br><br>
+
+        <label>Quantity</label><br>
+        <input type="number" name="quantity" value="{{ part['quantity'] }}" min="0" required><br><br>
+
+        <label>Category</label><br>
+        <input type="text" name="category" value="{{ part['category'] or '' }}" placeholder="e.g. Brakes, Engine, Filters"><br><br>
+
+        <label>Low Stock Alert Threshold</label><br>
+        <input type="number" name="threshold" value="{{ part['low_stock_threshold'] }}" min="0" required><br><br>
+
+        <button type="submit">Save Changes</button>
+    </form>
+</body>
+</html>
