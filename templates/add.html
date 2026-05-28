@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>add item</title>
+</head>
+<body>
+<h2>Add New Part</h2>
+    <a href="/inventory">← Back to Inventory</a>
+
+    <form method="POST">
+        <label>Part Name</label><br>
+        <input type="text" name="name" required><br><br>
+
+        <label>Quantity</label><br>
+        <input type="number" name="quantity" min="0" required><br><br>
+
+        <label>Category</label><br>
+        <input type="text" name="category" placeholder="e.g. Brakes, Engine, Filters"><br><br>
+
+        <label>Low Stock Alert Threshold</label><br>
+        <input type="number" name="threshold" min="0" value="5" required><br><br>
+
+        <button type="submit">Add Part</button>
+    </form>
+</body>
+</html>
