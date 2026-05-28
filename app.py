@@ -105,6 +105,42 @@ def add_part():
     return render_template('add.html')
 
 
+@app.route('/edit/<int:part_id>', methods=['GET', 'POST'])
+def edit_part(part_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    db = get_db()
+    part = db.execute(
+        'SELECT * FROM parts WHERE id = ? AND user_id = ?',
+        (part_id, session['user_id'])
+    ).fetchone()
+
+    if part is None:
+        db.close()
+        return redirect(url_for('inventory'))
+
+    if request.method == 'POST':
+        name = request.form['name']
+        quantity = int(request.form['quantity'])
+        category = request.form['category']
+        threshold = int(request.form['threshold'])
+
+        db.execute(
+            'UPDATE parts SET name = ?, quantity = ?, category = ?, low_stock_threshold = ? WHERE id = ? AND user_id = ?',
+            (name, quantity, category, threshold, part_id, session['user_id'])
+        )
+        db.commit()
+        db.close()
+
+        flash('Part updated successfully.')
+        return redirect(url_for('inventory'))
+
+    db.close()
+    return render_template('edit.html', part=part)
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
