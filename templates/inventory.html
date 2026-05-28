@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventory</title>
+</head>
+<body>
+<h2>Welcome, {{ username }}</h2>
+    <a href="/logout">Logout</a>
+
+    <h3>My Parts</h3>
+    <a href="/add">+ Add New Part</a>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <p style="color:green">{{ messages[0] }}</p>
+        {% endif %}
+    {% endwith %}
+
+    {% if parts %}
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Quantity</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        {% for part in parts %}
+        <tr>
+            <td>{{ part['name'] }}</td>
+            <td>{{ part['category'] or 'N/A' }}</td>
+            <td>{{ part['quantity'] }}</td>
+            <td>
+                {% if part['quantity'] <= part['low_stock_threshold'] %}
+                    <span style="color:red">⚠ Low Stock</span>
+                {% else %}
+                    <span style="color:green">OK</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="/edit/{{ part['id'] }}">Edit</a> |
+                <a href="/delete/{{ part['id'] }}" onclick="return confirm('Delete this part?')">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <p>No parts yet. <a href="/add">Add your first part.</a></p>
+    {% endif %}
+</body>
+</html>

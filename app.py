@@ -65,11 +65,20 @@ def index():
     return redirect(url_for('login'))
 
 
-#placeHolder - crash prevention
+
 @app.route('/inventory')
 def inventory():
-    return 'Inventory page coming soon'
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
 
+    db = get_db()
+    parts = db.execute(
+        'SELECT * FROM parts WHERE user_id = ? ORDER BY name ASC',
+        (session['user_id'],)
+    ).fetchall()
+    db.close()
+
+    return render_template('inventory.html', parts=parts, username=session['username'])
 
 
 if __name__ == '__main__':
