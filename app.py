@@ -82,8 +82,7 @@ def inventory():
 
     low_stock = get_low_stock_parts(parts)
 
-    return render_template('inventory.html', parts=parts, username=session['username'])
-
+    return render_template('inventory.html', parts=parts, username=session['username'], low_stock_count=len(low_stock))
 #part Add
 @app.route('/add', methods=['GET', 'POST'])
 def add_part():
