@@ -80,6 +80,7 @@ def inventory():
 
     return render_template('inventory.html', parts=parts, username=session['username'])
 
+#part Add
 @app.route('/add', methods=['GET', 'POST'])
 def add_part():
     if 'user_id' not in session:
@@ -105,6 +106,7 @@ def add_part():
     return render_template('add.html')
 
 
+#Part Edit
 @app.route('/edit/<int:part_id>', methods=['GET', 'POST'])
 def edit_part(part_id):
     if 'user_id' not in session:
@@ -140,7 +142,21 @@ def edit_part(part_id):
     return render_template('edit.html', part=part)
 
 
+#Part Delete
+@app.route('/delete/<int:part_id>')
+def delete_part(part_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    db = get_db()
+    db.execute(
+        'DELETE FROM parts WHERE id = ? AND user_id = ?',
+        (part_id, session['user_id'])
+    )
+    db.commit()
+    db.close()
 
+    flash('Part deleted.')
+    return redirect(url_for('inventory'))
 
 if __name__ == '__main__':
     app.run(debug=True)
