@@ -80,6 +80,31 @@ def inventory():
 
     return render_template('inventory.html', parts=parts, username=session['username'])
 
+@app.route('/add', methods=['GET', 'POST'])
+def add_part():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        name = request.form['name']
+        quantity = int(request.form['quantity'])
+        category = request.form['category']
+        threshold = int(request.form['threshold'])
+
+        db = get_db()
+        db.execute(
+            'INSERT INTO parts (user_id, name, quantity, category, low_stock_threshold) VALUES (?, ?, ?, ?, ?)',
+            (session['user_id'], name, quantity, category, threshold)
+        )
+        db.commit()
+        db.close()
+
+        flash('Part added successfully.')
+        return redirect(url_for('inventory'))
+
+    return render_template('add.html')
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
