@@ -163,3 +163,8 @@ def delete_part(part_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+    @app.context_processor
+    def inject_user():
+        return dict(session=session)
