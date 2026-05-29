@@ -2,25 +2,39 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Register</title>
+    <title>Register — MechTrack</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
- <h2>Register</h2>
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-title">MechTrack</div>
+        <div class="auth-subtitle">Create your account</div>
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <p style="color:red">{{ messages[0] }}</p>
-        {% endif %}
-    {% endwith %}
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert alert-error">{{ messages[0] }}</div>
+            {% endif %}
+        {% endwith %}
 
-    <form method="POST">
-        <label>Username</label><br>
-        <input type="text" name="username" required><br><br>
-        <label>Password</label><br>
-        <input type="password" name="password" required><br><br>
-        <button type="submit">Register</button>
-    </form>
+        <form method="POST">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Create Account</button>
+            </div>
+        </form>
 
-    <p>Already have an account? <a href="/login">Login</a></p>
+        <div class="auth-footer">
+            Already have an account? <a href="/login">Sign in</a>
+        </div>
+    </div>
+</div>
 </body>
 </html>

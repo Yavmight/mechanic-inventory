@@ -2,58 +2,79 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Inventory</title>
+    <title>Inventory — MechTrack</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<h2>Welcome, {{ username }}</h2>
 
-{% if low_stock_count > 0 %}
-    <p style="color:red; font-weight:bold;">
-        ⚠ {{ low_stock_count }} part(s) are running low on stock!
-    </p>
-{% endif %}
+<nav class="navbar">
+    <a href="/inventory" class="logo">MechTrack</a>
+    <div class="nav-right">
+        <span class="nav-user">{{ username }}</span>
+        <a href="/logout" class="nav-logout">Logout</a>
+    </div>
+</nav>
 
-<a href="/logout">Logout</a>
+<div class="container">
 
-    <h3>My Parts</h3>
-    <a href="/add">+ Add New Part</a>
+    <div class="page-header">
+        <h1>Parts Inventory</h1>
+        <a href="/add" class="btn btn-primary">+ Add Part</a>
+    </div>
 
     {% with messages = get_flashed_messages() %}
         {% if messages %}
-            <p style="color:green">{{ messages[0] }}</p>
+            <div class="alert alert-success">{{ messages[0] }}</div>
         {% endif %}
     {% endwith %}
 
-    {% if parts %}
-    <table border="1" cellpadding="8">
-        <tr>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Quantity</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-        {% for part in parts %}
-        <tr>
-            <td>{{ part['name'] }}</td>
-            <td>{{ part['category'] or 'N/A' }}</td>
-            <td>{{ part['quantity'] }}</td>
-            <td>
-                {% if part['quantity'] <= part['low_stock_threshold'] %}
-                    <span style="color:red">⚠ Low Stock</span>
-                {% else %}
-                    <span style="color:green">OK</span>
-                {% endif %}
-            </td>
-            <td>
-                <a href="/edit/{{ part['id'] }}">Edit</a> |
-                <a href="/delete/{{ part['id'] }}" onclick="return confirm('Delete this part?')">Delete</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% else %}
-        <p>No parts yet. <a href="/add">Add your first part.</a></p>
+    {% if low_stock_count > 0 %}
+        <div class="alert alert-warning">
+            ⚠ {{ low_stock_count }} part(s) are running low on stock
+        </div>
     {% endif %}
+
+    {% if parts %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Part Name</th>
+                    <th>Category</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for part in parts %}
+                <tr>
+                    <td>{{ part['name'] }}</td>
+                    <td>{{ part['category'] or '—' }}</td>
+                    <td>{{ part['quantity'] }}</td>
+                    <td>
+                        {% if part['quantity'] <= part['low_stock_threshold'] %}
+                            <span class="badge badge-low">⚠ Low</span>
+                        {% else %}
+                            <span class="badge badge-ok">OK</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="/edit/{{ part['id'] }}" class="btn btn-edit">Edit</a>
+                        <a href="/delete/{{ part['id'] }}" class="btn btn-danger" onclick="return confirm('Delete this part?')">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <div class="empty-state">
+            <p>No parts in your inventory yet.</p>
+            <a href="/add" class="btn btn-primary">Add your first part</a>
+        </div>
+    {% endif %}
+
+</div>
 </body>
 </html>
