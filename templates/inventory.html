@@ -50,6 +50,30 @@
         </div>
     </div>
 
+    <form method="GET" action="/inventory" class="filter-bar">
+        <input
+                type="text"
+                name="search"
+                placeholder="Search by name or brand..."
+                value="{{ search }}"
+                class="filter-search"
+        >
+        <select name="category" class="filter-select">
+            <option value="">All Categories</option>
+            {% set categories = ['Brakes', 'Engine', 'Filters', 'Electrical', 'Suspension', 'Transmission', 'Exhaust', 'Cooling', 'Other'] %}
+            {% for cat in categories %}
+                <option value="{{ cat }}" {% if filter_category == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+        <select name="part_type" class="filter-select">
+            <option value="">All Types</option>
+            <option value="OEM" {% if filter_type == 'OEM' %}selected{% endif %}>OEM</option>
+            <option value="Aftermarket" {% if filter_type == 'Aftermarket' %}selected{% endif %}>Aftermarket</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="/inventory" class="btn btn-ghost">Clear</a>
+    </form>
+
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <div class="alert alert-success">{{ messages[0] }}</div>

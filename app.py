@@ -74,61 +74,53 @@ def inventory():
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
+    search = request.args.get('search', '').strip()
+    filter_category = request.args.get('category', '')
+    filter_type = request.args.get('part_type', '')
+
+    query = 'SELECT * FROM parts WHERE user_id = ?'
+    params = [session['user_id']]
+
+    if search:
+        query += ' AND (name LIKE ? OR brand LIKE ?)'
+        params.extend([f'%{search}%', f'%{search}%'])
+
+    if filter_category:
+        query += ' AND category = ?'
+        params.append(filter_category)
+
+    if filter_type:
+        query += ' AND part_type = ?'
+        params.append(filter_type)
+
+    query += ' ORDER BY name ASC'
+
     db = get_db()
-    parts = db.execute(
-        'SELECT * FROM parts WHERE user_id = ? ORDER BY name ASC',
-        (session['user_id'],)
-    ).fetchall()
+    parts = db.execute(query, params).fetchall()
 
     stats = db.execute('''
-                       SELECT COUNT(*)                 as total_parts,
-                              SUM(quantity)            as total_units,
-                              COUNT(DISTINCT category) as total_categories,
-                              SUM(price * quantity)    as total_value
-                       FROM parts
-                       WHERE user_id = ?
-                       ''', (session['user_id'],)).fetchone()
+        SELECT 
+            COUNT(*) as total_parts,
+            SUM(quantity) as total_units,
+            COUNT(DISTINCT category) as total_categories,
+            SUM(price * quantity) as total_value
+        FROM parts 
+        WHERE user_id = ?
+    ''', (session['user_id'],)).fetchone()
 
     db.close()
 
     low_stock = get_low_stock_parts(parts)
 
     return render_template('inventory.html',
-                           parts=parts,
-                           username=session['username'],
-                           low_stock_count=len(low_stock),
-                           stats=stats
-                           )
-#part Addition
-@app.route('/add', methods=['GET', 'POST'])
-def add_part():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-
-    if request.method == 'POST':
-        name = request.form['name']
-        quantity = int(request.form['quantity'])
-        category = request.form['category']
-        part_type = request.form['part_type']
-        brand = request.form['brand']
-        serial_number = request.form['serial_number'] or None
-        price = float(request.form['price'])
-        threshold = int(request.form['threshold'])
-
-        db = get_db()
-        db.execute(
-            '''INSERT INTO parts 
-               (user_id, name, quantity, category, part_type, brand, serial_number, price, low_stock_threshold) 
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-            (session['user_id'], name, quantity, category, part_type, brand, serial_number, price, threshold)
-        )
-        db.commit()
-        db.close()
-
-        flash('Part added successfully.')
-        return redirect(url_for('inventory'))
-
-    return render_template('add.html')
+        parts=parts,
+        username=session['username'],
+        low_stock_count=len(low_stock),
+        stats=stats,
+        search=search,
+        filter_category=filter_category,
+        filter_type=filter_type
+    )
 
 
 #Part Edit
