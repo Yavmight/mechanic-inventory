@@ -4,6 +4,7 @@ from database import init_db, get_db
 from werkzeug.security import generate_password_hash, check_password_hash
 from logic import get_low_stock_parts
 import os
+from datetime import datetime
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -152,15 +153,26 @@ def add_part():
         threshold = int(request.form['threshold'])
 
         db = get_db()
+
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         db.execute(
             '''INSERT INTO parts
-               (user_id, name, quantity, category, part_type, brand, serial_number, price, low_stock_threshold)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-            (session['user_id'], name, quantity, category, part_type, brand, serial_number, price, threshold)
+               (user_id,
+                name, 
+                quantity, 
+                category, 
+                part_type,
+                brand,
+                serial_number,
+                price,
+                low_stock_threshold,
+                created_at,
+                updated_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+            (session['user_id'], name, quantity, category, part_type, brand, serial_number, price, threshold, now, now)
         )
         db.commit()
         db.close()
-
         flash('Part added successfully.')
         return redirect(url_for('inventory'))
 
@@ -193,6 +205,7 @@ def edit_part(part_id):
         price = float(request.form['price'])
         threshold = int(request.form['threshold'])
 
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         db.execute(
             '''UPDATE parts
                SET name=?,
@@ -202,10 +215,12 @@ def edit_part(part_id):
                    brand=?,
                    serial_number=?,
                    price=?,
-                   low_stock_threshold=?
+                   low_stock_threshold=?,
+                   updated_at=?
                WHERE id = ?
                  AND user_id = ?''',
-            (name, quantity, category, part_type, brand, serial_number, price, threshold, part_id, session['user_id'])
+            (name, quantity, category, part_type, brand, serial_number, price, threshold, now, part_id,
+             session['user_id'])
         )
         db.commit()
         db.close()
@@ -232,6 +247,24 @@ def delete_part(part_id):
 
     flash('Part deleted.')
     return redirect(url_for('inventory'))
+
+
+@app.route('/part/<int:part_id>')
+def view_part(part_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    db = get_db()
+    part = db.execute(
+        'SELECT * FROM parts WHERE id = ? AND user_id = ?',
+        (part_id, session['user_id'])
+    ).fetchone()
+    db.close()
+
+    if part is None:
+        return redirect(url_for('inventory'))
+
+    return render_template('view_part.html', part=part)
 
 
 if __name__ == '__main__':

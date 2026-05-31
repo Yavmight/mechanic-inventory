@@ -117,7 +117,7 @@
                 <tbody>
                 {% for part in parts %}
                     <tr>
-                        <td>{{ part['name'] }}</td>
+                        <td><a href="/part/{{ part['id'] }}" class="part-link">{{ part['name'] }}</a></td>
                         <td>{{ part['brand'] or '—' }}</td>
                         <td>{{ part['category'] or '—' }}</td>
                         <td>{{ part['part_type'] }}</td>
