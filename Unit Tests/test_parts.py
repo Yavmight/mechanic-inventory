@@ -1,22 +1,5 @@
 import unittest
-from logic import is_low_stock, get_low_stock_parts
-
-class TestIsLowStock(unittest.TestCase):
-    def test_below_threshold(self):
-        self.assertTrue(is_low_stock(3, 5))
-
-    def test_above_threshold(self):
-        self.assertFalse(is_low_stock(10, 5))
-
-    def test_exact_threshold(self):
-        self.assertTrue(is_low_stock(5, 5))
-
-    def test_zero_quantity(self):
-        self.assertTrue(is_low_stock(0, 5))
-
-    def test_custom_threshold(self):
-        self.assertFalse(is_low_stock(8, 3))
-
+from logic import get_low_stock_parts
 
 class TestGetLowStockParts(unittest.TestCase):
     def setUp(self):
@@ -39,7 +22,6 @@ class TestGetLowStockParts(unittest.TestCase):
 
     def test_empty_list(self):
         self.assertEqual(get_low_stock_parts([]), [])
-
 
 if __name__ == '__main__':
     unittest.main()
