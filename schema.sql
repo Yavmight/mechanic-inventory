@@ -10,6 +10,11 @@ CREATE TABLE IF NOT EXISTS parts (
     name TEXT NOT NULL,
     quantity INTEGER NOT NULL DEFAULT 0,
     category TEXT,
+    part_type TEXT NOT NULL DEFAULT 'OEM' CHECK(part_type IN ('OEM', 'Aftermarket')),
+    brand TEXT,
+    serial_number INTEGER,
+    price REAL DEFAULT 0.0,
     low_stock_threshold INTEGER NOT NULL DEFAULT 5,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
+    UNIQUE(user_id, name)
 );

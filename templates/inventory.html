@@ -22,6 +22,34 @@
         <a href="/add" class="btn btn-primary">+ Add Part</a>
     </div>
 
+    <div class="stats-bar">
+
+        <div class="stat-card">
+            <div class="stat-value">{{ stats['total_parts'] or 0 }}</div>
+            <div class="stat-label">Total Parts</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-value">{{ stats['total_units'] or 0 }}</div>
+            <div class="stat-label">Total Units</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-value">{{ stats['total_categories'] or 0 }}</div>
+            <div class="stat-label">Categories</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-value" style="color: var(--red)">{{ low_stock_count }}</div>
+            <div class="stat-label">Low Stock</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-value">₺{{ "%.0f"|format(stats['total_value'] or 0) }}</div>
+            <div class="stat-label">Total Value</div>
+        </div>
+    </div>
+
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <div class="alert alert-success">{{ messages[0] }}</div>
@@ -35,39 +63,48 @@
     {% endif %}
 
     {% if parts %}
-    <div class="table-wrap">
-        <table>
-            <thead>
+        <div class="table-wrap">
+            <table>
+                <thead>
                 <tr>
                     <th>Part Name</th>
+                    <th>Brand</th>
                     <th>Category</th>
+                    <th>Type</th>
+                    <th>Serial No.</th>
+                    <th>Price</th>
                     <th>Quantity</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                 {% for part in parts %}
-                <tr>
-                    <td>{{ part['name'] }}</td>
-                    <td>{{ part['category'] or '—' }}</td>
-                    <td>{{ part['quantity'] }}</td>
-                    <td>
-                        {% if part['quantity'] <= part['low_stock_threshold'] %}
-                            <span class="badge badge-low">⚠ Low</span>
-                        {% else %}
-                            <span class="badge badge-ok">OK</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="/edit/{{ part['id'] }}" class="btn btn-edit">Edit</a>
-                        <a href="/delete/{{ part['id'] }}" class="btn btn-danger" onclick="return confirm('Delete this part?')">Delete</a>
-                    </td>
-                </tr>
+                    <tr>
+                        <td>{{ part['name'] }}</td>
+                        <td>{{ part['brand'] or '—' }}</td>
+                        <td>{{ part['category'] or '—' }}</td>
+                        <td>{{ part['part_type'] }}</td>
+                        <td>{{ part['serial_number'] or '—' }}</td>
+                        <td>₺{{ "%.2f"|format(part['price']) }}</td>
+                        <td>{{ part['quantity'] }}</td>
+                        <td>
+                            {% if part['quantity'] <= part['low_stock_threshold'] %}
+                                <span class="badge badge-low">⚠ Low</span>
+                            {% else %}
+                                <span class="badge badge-ok">OK</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="/edit/{{ part['id'] }}" class="btn btn-edit">Edit</a>
+                            <a href="/delete/{{ part['id'] }}" class="btn btn-danger"
+                               onclick="return confirm('Delete this part?')">Delete</a>
+                        </td>
+                    </tr>
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                </tbody>
+            </table>
+        </div>
     {% else %}
         <div class="empty-state">
             <p>No parts in your inventory yet.</p>

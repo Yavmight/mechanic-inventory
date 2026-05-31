@@ -3,11 +3,12 @@ import sqlite3
 from database import init_db, get_db
 from werkzeug.security import  generate_password_hash, check_password_hash
 from logic import get_low_stock_parts
-
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 app = Flask(__name__)
 app.secret_key = 'abdu1234'
-
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 init_db()
 
 
@@ -66,7 +67,7 @@ def index():
     return redirect(url_for('login'))
 
 
-#inventory
+#inventory route
 
 @app.route('/inventory')
 def inventory():
@@ -78,12 +79,27 @@ def inventory():
         'SELECT * FROM parts WHERE user_id = ? ORDER BY name ASC',
         (session['user_id'],)
     ).fetchall()
+
+    stats = db.execute('''
+                       SELECT COUNT(*)                 as total_parts,
+                              SUM(quantity)            as total_units,
+                              COUNT(DISTINCT category) as total_categories,
+                              SUM(price * quantity)    as total_value
+                       FROM parts
+                       WHERE user_id = ?
+                       ''', (session['user_id'],)).fetchone()
+
     db.close()
 
     low_stock = get_low_stock_parts(parts)
 
-    return render_template('inventory.html', parts=parts, username=session['username'], low_stock_count=len(low_stock))
-#part Add
+    return render_template('inventory.html',
+                           parts=parts,
+                           username=session['username'],
+                           low_stock_count=len(low_stock),
+                           stats=stats
+                           )
+#part Addition
 @app.route('/add', methods=['GET', 'POST'])
 def add_part():
     if 'user_id' not in session:
@@ -93,12 +109,18 @@ def add_part():
         name = request.form['name']
         quantity = int(request.form['quantity'])
         category = request.form['category']
+        part_type = request.form['part_type']
+        brand = request.form['brand']
+        serial_number = request.form['serial_number'] or None
+        price = float(request.form['price'])
         threshold = int(request.form['threshold'])
 
         db = get_db()
         db.execute(
-            'INSERT INTO parts (user_id, name, quantity, category, low_stock_threshold) VALUES (?, ?, ?, ?, ?)',
-            (session['user_id'], name, quantity, category, threshold)
+            '''INSERT INTO parts 
+               (user_id, name, quantity, category, part_type, brand, serial_number, price, low_stock_threshold) 
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+            (session['user_id'], name, quantity, category, part_type, brand, serial_number, price, threshold)
         )
         db.commit()
         db.close()
@@ -129,11 +151,17 @@ def edit_part(part_id):
         name = request.form['name']
         quantity = int(request.form['quantity'])
         category = request.form['category']
+        part_type = request.form['part_type']
+        brand = request.form['brand']
+        serial_number = request.form['serial_number'] or None
+        price = float(request.form['price'])
         threshold = int(request.form['threshold'])
 
         db.execute(
-            'UPDATE parts SET name = ?, quantity = ?, category = ?, low_stock_threshold = ? WHERE id = ? AND user_id = ?',
-            (name, quantity, category, threshold, part_id, session['user_id'])
+            '''UPDATE parts 
+               SET name=?, quantity=?, category=?, part_type=?, brand=?, serial_number=?, price=?, low_stock_threshold=?
+               WHERE id=? AND user_id=?''',
+            (name, quantity, category, part_type, brand, serial_number, price, threshold, part_id, session['user_id'])
         )
         db.commit()
         db.close()

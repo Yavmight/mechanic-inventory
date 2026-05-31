@@ -27,27 +27,52 @@
                 <label>Part Name</label>
                 <input type="text" name="name" required autofocus>
             </div>
+
             <div class="form-group">
                 <label>Quantity</label>
                 <input type="number" name="quantity" min="0" required>
             </div>
 
-    <div class="form-group">
-    <label>Category</label>
-    <select name="category">
-        <option value="">- Select Category -</option>
+            <div class="form-group">
+                <label>Category</label>
+                <select name="category">
+                    <option value="">— Select Category —</option>
+                    {% set categories = ['Brakes', 'Engine', 'Filters', 'Electrical', 'Suspension', 'Transmission', 'Exhaust', 'Cooling', 'Other'] %}
+                    {% for cat in categories %}
+                        <option value="{{ cat }}"
+                                {% if part is defined and part.get('category') == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-        {% set categories = ['Brakes', 'Engine', 'Filters', 'Electrical', 'Suspension', 'Transmission', 'Exhaust', 'Cooling', 'Other'] %}
+            <div class="form-group">
+                <label>Part Type</label>
+                <select name="part_type" required>
+                    <option value="OEM">OEM</option>
+                    <option value="Aftermarket">Aftermarket</option>
+                </select>
+            </div>
 
-        {% for cat in categories %}
-            <option value="{{ cat }}" {% if part is defined and part.get('category') == cat %}selected{% endif %}>{{ cat }}</option>
-        {% endfor %}
-    </select>
-</div>
+            <div class="form-group">
+                <label>Brand</label>
+                <input type="text" name="brand" placeholder="e.g. Bosch, NGK, Brembo">
+            </div>
+
+            <div class="form-group">
+                <label>Serial Number</label>
+                <input type="number" name="serial_number" placeholder="Optional">
+            </div>
+
+            <div class="form-group">
+                <label>Price (₺)</label>
+                <input type="number" name="price" min="0" step="0.01" value="0.00" required>
+            </div>
+
             <div class="form-group">
                 <label>Low Stock Threshold</label>
                 <input type="number" name="threshold" min="0" value="5" required>
             </div>
+
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Add Part</button>
                 <a href="/inventory" class="btn btn-ghost">Cancel</a>
@@ -55,3 +80,5 @@
         </form>
     </div>
 </div>
+</body>
+</html>
