@@ -1,16 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-import sqlite3
 from database import init_db, get_db
 from werkzeug.security import generate_password_hash, check_password_hash
 from logic import get_low_stock_parts
-import os
 from datetime import datetime
+import os
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 app = Flask(__name__)
 app.secret_key = 'abdu1234'
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
 init_db()
 
 
