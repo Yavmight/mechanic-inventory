@@ -122,6 +122,37 @@ def inventory():
         filter_type=filter_type
     )
 
+#part add
+@app.route('/add', methods=['GET', 'POST'])
+def add_part():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        name = request.form['name']
+        quantity = int(request.form['quantity'])
+        category = request.form['category']
+        part_type = request.form['part_type']
+        brand = request.form['brand']
+        serial_number = request.form['serial_number'] or None
+        price = float(request.form['price'])
+        threshold = int(request.form['threshold'])
+
+        db = get_db()
+        db.execute(
+            '''INSERT INTO parts 
+               (user_id, name, quantity, category, part_type, brand, serial_number, price, low_stock_threshold) 
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+            (session['user_id'], name, quantity, category, part_type, brand, serial_number, price, threshold)
+        )
+        db.commit()
+        db.close()
+
+        flash('Part added successfully.')
+        return redirect(url_for('inventory'))
+
+    return render_template('add.html')
+
 
 #Part Edit
 @app.route('/edit/<int:part_id>', methods=['GET', 'POST'])
