@@ -15,6 +15,8 @@ CREATE TABLE IF NOT EXISTS parts (
     serial_number INTEGER,
     price REAL DEFAULT 0.0,
     low_stock_threshold INTEGER NOT NULL DEFAULT 5,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
     UNIQUE(user_id, name)
 );
