@@ -440,3 +440,19 @@ tbody td {
 .filter-select:focus {
     border-color: var(--orange);
 }
+
+
+/* ── SORT LINKS ── */
+.sort-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    transition: color 0.2s;
+}
+
+.sort-link:hover {
+    color: var(--orange);
+}

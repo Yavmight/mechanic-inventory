@@ -91,13 +91,25 @@
             <table>
                 <thead>
                 <tr>
-                    <th>Part Name</th>
-                    <th>Brand</th>
-                    <th>Category</th>
-                    <th>Type</th>
+                    {% macro sort_header(label, field) %}
+                        <th>
+                            <a href="{{ url_for('inventory', search=search, category=filter_category, part_type=filter_type, sort=field, dir='desc' if sort_by == field and sort_dir == 'asc' else 'asc') }}"
+                               class="sort-link">
+                                {{ label }}
+                                {% if sort_by == field %}
+                                    {{ '↑' if sort_dir == 'asc' else '↓' }}
+                                {% endif %}
+                            </a>
+                        </th>
+                    {% endmacro %}
+
+                    {{ sort_header('Part Name', 'name') }}
+                    {{ sort_header('Brand', 'brand') }}
+                    {{ sort_header('Category', 'category') }}
+                    {{ sort_header('Type', 'part_type') }}
                     <th>Serial No.</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
+                    {{ sort_header('Price', 'price') }}
+                    {{ sort_header('Quantity', 'quantity') }}
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>

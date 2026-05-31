@@ -1,9 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import sqlite3
 from database import init_db, get_db
-from werkzeug.security import  generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from logic import get_low_stock_parts
 import os
+
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 app = Flask(__name__)
@@ -12,7 +13,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 init_db()
 
 
-#auth_routes
+# auth_routes
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -67,7 +68,7 @@ def index():
     return redirect(url_for('login'))
 
 
-#inventory route
+# inventory route
 
 @app.route('/inventory')
 def inventory():
@@ -93,36 +94,48 @@ def inventory():
         query += ' AND part_type = ?'
         params.append(filter_type)
 
-    query += ' ORDER BY name ASC'
+    sort_by = request.args.get('sort', 'name')
+
+    sort_dir = request.args.get('dir', 'asc')
+
+    allowed_sorts = ['name', 'brand', 'category', 'part_type', 'price', 'quantity']
+    if sort_by not in allowed_sorts:
+        sort_by = 'name'
+
+    sort_dir_sql = 'ASC' if sort_dir == 'asc' else 'DESC'
+
+    query += f' ORDER BY {sort_by} {sort_dir_sql}'
 
     db = get_db()
     parts = db.execute(query, params).fetchall()
 
     stats = db.execute('''
-        SELECT 
-            COUNT(*) as total_parts,
-            SUM(quantity) as total_units,
-            COUNT(DISTINCT category) as total_categories,
-            SUM(price * quantity) as total_value
-        FROM parts 
-        WHERE user_id = ?
-    ''', (session['user_id'],)).fetchone()
+                       SELECT COUNT(*)                 as total_parts,
+                              SUM(quantity)            as total_units,
+                              COUNT(DISTINCT category) as total_categories,
+                              SUM(price * quantity)    as total_value
+                       FROM parts
+                       WHERE user_id = ?
+                       ''', (session['user_id'],)).fetchone()
 
     db.close()
 
     low_stock = get_low_stock_parts(parts)
 
     return render_template('inventory.html',
-        parts=parts,
-        username=session['username'],
-        low_stock_count=len(low_stock),
-        stats=stats,
-        search=search,
-        filter_category=filter_category,
-        filter_type=filter_type
-    )
+                           parts=parts,
+                           username=session['username'],
+                           low_stock_count=len(low_stock),
+                           stats=stats,
+                           search=search,
+                           filter_category=filter_category,
+                           filter_type=filter_type,
+                           sort_by=sort_by,
+                           sort_dir=sort_dir
+                           )
 
-#part add
+
+# part add
 @app.route('/add', methods=['GET', 'POST'])
 def add_part():
     if 'user_id' not in session:
@@ -140,8 +153,8 @@ def add_part():
 
         db = get_db()
         db.execute(
-            '''INSERT INTO parts 
-               (user_id, name, quantity, category, part_type, brand, serial_number, price, low_stock_threshold) 
+            '''INSERT INTO parts
+               (user_id, name, quantity, category, part_type, brand, serial_number, price, low_stock_threshold)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
             (session['user_id'], name, quantity, category, part_type, brand, serial_number, price, threshold)
         )
@@ -154,7 +167,7 @@ def add_part():
     return render_template('add.html')
 
 
-#Part Edit
+# Part Edit
 @app.route('/edit/<int:part_id>', methods=['GET', 'POST'])
 def edit_part(part_id):
     if 'user_id' not in session:
@@ -181,9 +194,17 @@ def edit_part(part_id):
         threshold = int(request.form['threshold'])
 
         db.execute(
-            '''UPDATE parts 
-               SET name=?, quantity=?, category=?, part_type=?, brand=?, serial_number=?, price=?, low_stock_threshold=?
-               WHERE id=? AND user_id=?''',
+            '''UPDATE parts
+               SET name=?,
+                   quantity=?,
+                   category=?,
+                   part_type=?,
+                   brand=?,
+                   serial_number=?,
+                   price=?,
+                   low_stock_threshold=?
+               WHERE id = ?
+                 AND user_id = ?''',
             (name, quantity, category, part_type, brand, serial_number, price, threshold, part_id, session['user_id'])
         )
         db.commit()
@@ -196,7 +217,7 @@ def edit_part(part_id):
     return render_template('edit.html', part=part)
 
 
-#Part Delete
+# Part Delete
 @app.route('/delete/<int:part_id>')
 def delete_part(part_id):
     if 'user_id' not in session:
@@ -211,6 +232,7 @@ def delete_part(part_id):
 
     flash('Part deleted.')
     return redirect(url_for('inventory'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
